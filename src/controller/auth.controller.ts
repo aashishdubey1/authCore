@@ -55,3 +55,53 @@ export const register = async (req: Request, res: Response) => {
   }
   res.send(500).json({ success: false, message: "Internal Server Error" });
 };
+
+export const resendVerificationCode = async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  try {
+    const exisitngUser = await UserRepository.findByEmail(email);
+
+    if (!exisitngUser)
+      return res
+        .status(400)
+        .json({ success: false, message: "User not found" });
+
+    const isPasswordCorrect = await bcrypt.compare(
+      password,
+      exisitngUser.password
+    );
+    if (!isPasswordCorrect)
+      return res
+        .status(401)
+        .json({ success: false, message: "Incorrect Password" });
+
+    const isEmailVerified = exisitngUser.emailVerified;
+    if (isEmailVerified)
+      return res
+        .status(404)
+        .json({ status: false, message: "Email is already verified" });
+
+    const token = crypto.randomBytes(32).toString("hex");
+    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+    const expiresAt = new Date(Date.now() + 1000 * 60 * 60);
+
+    await VerificationCode.update(exisitngUser.id, tokenHash, expiresAt);
+
+    if (serverConfig.BUN_ENV === "production") {
+      await emailService.sendVerificationEmail(exisitngUser.email, token);
+    } else {
+      console.log(`${serverConfig.APP_URL}/verify-email?token=${token}`);
+    }
+
+    return res.status(201).json({
+      success: true,
+      message: "Verification code resent successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};

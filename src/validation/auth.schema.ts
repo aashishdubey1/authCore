@@ -22,5 +22,15 @@ export const userLoginSchema = z.object({
     .min(8, "Minimumm length should be 8 characters"),
 });
 
+export const resendVerificationCodeSchema = z.object({
+  email: z.email("Email is required"),
+  password: z
+    .string("Password is required")
+    .min(8, "Minimumm length should be 8 characters"),
+});
+
 export type UserRegisterInput = z.infer<typeof userRegistrationSchema>;
 export type UserLoginInput = z.infer<typeof userLoginSchema>;
+export type ResendVerificationCodeInput = z.infer<
+  typeof resendVerificationCodeSchema
+>;
