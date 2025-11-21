@@ -4,7 +4,7 @@ import serverConfig from "../config/server.config";
 const resend = new Resend(serverConfig.RESEND_API_KEY);
 
 class EmailService {
-  async sendVerificaitonEmail(email: string, token: string) {
+  async sendVerificationEmail(email: string, token: string) {
     const verifyUrl = `${serverConfig.APP_URL}/verify-email?token=${token}`;
     const html = `
       <h2>Verify your email</h2>
