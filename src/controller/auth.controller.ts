@@ -105,3 +105,44 @@ export const resendVerificationCode = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const verifyEmail = async (req: Request, res: Response) => {
+  const { token } = req.query;
+
+  if (!token || Array.isArray(token) || typeof token !== "string") {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid token",
+    });
+  }
+
+  const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+
+  try {
+    const existingToken = await VerificationCode.find(tokenHash);
+
+    if (!existingToken)
+      return res
+        .status(400)
+        .json({ status: false, message: "Invalid or expired token" });
+
+    if (existingToken.isUsed)
+      return res
+        .status(400)
+        .json({ status: false, message: "Token has already been used" });
+
+    if (existingToken.expiresAt.getTime() < Date.now())
+      return res
+        .status(400)
+        .json({ success: false, message: "Token has expired" });
+
+    await UserRepository.verifyEmail(existingToken.userId);
+
+    await VerificationCode.markUsed(existingToken.id);
+
+    return res.status(200).json({ success: true, message: "Email Verified" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "internal server error" });
+  }
+};

@@ -26,4 +26,24 @@ export class VerificationCode {
       data: { token, expiresAt, isUsed: false },
     });
   }
+
+  static async find(tokenHash: string) {
+    return await prisma.verificationToken.findFirst({
+      where: { token: tokenHash },
+      include: {
+        user: {
+          select: {
+            email: true,
+          },
+        },
+      },
+    });
+  }
+
+  static async markUsed(id: string) {
+    return prisma.verificationToken.update({
+      where: { id },
+      data: { isUsed: true },
+    });
+  }
 }

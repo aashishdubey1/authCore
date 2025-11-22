@@ -2,18 +2,20 @@ import { Router } from "express";
 import {
   register,
   resendVerificationCode,
+  verifyEmail,
 } from "../controller/auth.controller";
-import { validate } from "../middlewares/inputValidate";
+import { validate, validateQuery } from "../middlewares/inputValidate";
 import {
   resendVerificationCodeSchema,
   userRegistrationSchema,
+  verifyEmailSchema,
 } from "../validation/auth.schema";
 
 const router = Router();
 
 router.post("/register", validate(userRegistrationSchema), register);
 
-// router.get("/verify-email/:token", verifyEmail);
+router.get("/verify-email", validateQuery(verifyEmailSchema), verifyEmail);
 
 router.post(
   "/resend-verification",

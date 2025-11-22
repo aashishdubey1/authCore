@@ -29,6 +29,10 @@ export const resendVerificationCodeSchema = z.object({
     .min(8, "Minimumm length should be 8 characters"),
 });
 
+export const verifyEmailSchema = z.object({
+  token: z.string("Token is missing").min(12, "Token is invalid"),
+});
+
 export type UserRegisterInput = z.infer<typeof userRegistrationSchema>;
 export type UserLoginInput = z.infer<typeof userLoginSchema>;
 export type ResendVerificationCodeInput = z.infer<
