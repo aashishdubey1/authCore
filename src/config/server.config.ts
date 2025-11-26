@@ -6,4 +6,6 @@ export default {
   EMAIL_FROM: process.env.EMAIL_FROM,
   APP_URL: process.env.APP_URL,
   BUN_ENV: process.env.BUN_ENV,
+  JWT_SECRET_KEY: process.env.JWT_SECRET_KEY,
+  JWT_ACCESS_KEY_EXPIERS_IN: process.env.JWT_ACCESS_KEY_EXPIERS_IN,
 };

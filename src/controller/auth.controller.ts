@@ -1,5 +1,8 @@
 import type { Request, Response } from "express";
-import type { UserRegisterInput } from "../validation/auth.schema";
+import type {
+  UserLoginInput,
+  UserRegisterInput,
+} from "../validation/auth.schema";
 import { UserRepository } from "../repositories/User.repository";
 import serverConfig from "../config/server.config";
 import bcrypt from "bcrypt";
@@ -8,6 +11,10 @@ import { VerificationCode } from "../repositories/VerificatonToken.repository";
 import { emailService } from "../utils/emailService";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
 import { PrismaClientValidationError } from "../generated/prisma/internal/prismaNamespace";
+import { Sessions } from "../repositories/Session.repository";
+import { getClientInfo } from "../utils/clientInfo";
+import { generateAccessToken, generateRefreshToken } from "../utils/jwt";
+import { RefreashToken } from "../repositories/RefreshToken.repository";
 
 export const register = async (req: Request, res: Response) => {
   const { name, email, password } = req.body as UserRegisterInput;
@@ -145,4 +152,67 @@ export const verifyEmail = async (req: Request, res: Response) => {
     console.log(error);
     res.status(500).json({ success: false, message: "internal server error" });
   }
+};
+
+export const login = async (req: Request, res: Response) => {
+  const { email, password } = req.body as UserLoginInput;
+  const { ip, deviceInfo, userAgent } = getClientInfo(req);
+
+  const user = await UserRepository.findByEmail(email);
+
+  if (!user)
+    return res.status(400).json({ success: false, message: "User not found" });
+
+  const isValidPassword = await bcrypt.compare(password, user.password);
+
+  if (!isValidPassword)
+    return res
+      .status(401)
+      .json({ success: false, message: "Invalid Password" });
+
+  if (!user.emailVerified)
+    return res
+      .status(401)
+      .json({ success: false, message: "Email not verified" });
+
+  if (user.accountLocked && user.lockedUntil! > new Date()) {
+    const minutes = Math.ceil(
+      (user.lockedUntil!.getTime() - Date.now()) / 60000
+    );
+    return res.status(401).json({
+      success: false,
+      message: `Your account is locked. Try again in ${minutes} min.`,
+    });
+  }
+
+  let session = await Sessions.find(user.id, userAgent, ip!);
+
+  if (!session) {
+    session = await Sessions.create(user.id, ip!, userAgent, deviceInfo);
+  } else {
+    session = await Sessions.update(session.id);
+  }
+  const { token: refreshToken, tokenHash } = generateRefreshToken();
+
+  await RefreashToken.create(session.id, tokenHash);
+
+  const accessToken = generateAccessToken({
+    userId: user.id,
+    sessionId: session.id,
+  });
+
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: serverConfig.BUN_ENV === "production",
+    sameSite: "strict",
+    path: "/auth/refresh",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "Login Successfull",
+    accessToken,
+    sessionId: session.id,
+  });
 };

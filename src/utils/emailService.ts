@@ -12,15 +12,15 @@ class EmailService {
       <a href="${verifyUrl}">${verifyUrl}</a>
     `;
 
-    try {
-      await resend.emails.send({
-        from: serverConfig.EMAIL_FROM!,
-        to: email,
-        subject: "Verify your email address ",
-        html,
-      });
-    } catch (error) {
-      console.error("Email sending failed:", error);
+    const { data, error } = await resend.emails.send({
+      from: serverConfig.EMAIL_FROM!,
+      to: email,
+      subject: "Verify your email address ",
+      html,
+    });
+
+    if (error) {
+      throw error;
     }
   }
 }
