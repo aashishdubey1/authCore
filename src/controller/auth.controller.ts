@@ -15,6 +15,7 @@ import { Sessions } from "../repositories/Session.repository";
 import { getClientInfo } from "../utils/clientInfo";
 import { generateAccessToken, generateRefreshToken } from "../utils/jwt";
 import { RefreashToken } from "../repositories/RefreshToken.repository";
+import prisma from "../config/db.config";
 
 export const register = async (req: Request, res: Response) => {
   const { name, email, password } = req.body as UserRegisterInput;
@@ -75,7 +76,7 @@ export const resendVerificationCode = async (req: Request, res: Response) => {
 
     const isPasswordCorrect = await bcrypt.compare(
       password,
-      exisitngUser.password
+      exisitngUser.password,
     );
     if (!isPasswordCorrect)
       return res
@@ -114,14 +115,7 @@ export const resendVerificationCode = async (req: Request, res: Response) => {
 };
 
 export const verifyEmail = async (req: Request, res: Response) => {
-  const { token } = req.query;
-
-  if (!token || Array.isArray(token) || typeof token !== "string") {
-    return res.status(400).json({
-      success: false,
-      message: "Invalid token",
-    });
-  }
+  const token = req.query.token as string;
 
   const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
 
@@ -177,7 +171,7 @@ export const login = async (req: Request, res: Response) => {
 
   if (user.accountLocked && user.lockedUntil! > new Date()) {
     const minutes = Math.ceil(
-      (user.lockedUntil!.getTime() - Date.now()) / 60000
+      (user.lockedUntil!.getTime() - Date.now()) / 60000,
     );
     return res.status(401).json({
       success: false,
@@ -215,4 +209,30 @@ export const login = async (req: Request, res: Response) => {
     accessToken,
     sessionId: session.id,
   });
+};
+
+export const logout = async (req: Request, res: Response) => {
+  const sessionId = req.user?.sessionId;
+
+  if (!sessionId) {
+    return res.status(401).json({
+      success: false,
+      message: "Unauthorized",
+    });
+  }
+  try {
+    await prisma.$transaction(async (tx) => {
+      await RefreashToken.revoke(sessionId, tx);
+      await Sessions.deactivate(sessionId, tx);
+    });
+
+    res.clearCookie("refreshToken");
+
+    res.status(200).json({ success: true, message: "Logout Successfully" });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Logout failed",
+    });
+  }
 };

@@ -67,7 +67,9 @@ model VerificationToken {
   isUsed    Boolean  @default(false) @map("is_used")
   expiresAt DateTime @map("expires_at")
   userId    String   @unique @map("user_id")
-  user      User     @relation(fields: [userId], references: [id])
 
+
+
+  user      User     @relation(fields: [userId], references: [id])
   @@map("verification_tokens")
 }

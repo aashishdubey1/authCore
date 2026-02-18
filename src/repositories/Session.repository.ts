@@ -1,12 +1,12 @@
+import type { PrismaClient } from "@prisma/client/extension";
 import prisma from "../config/db.config";
-import type { Session } from "../generated/prisma/client";
 
 export class Sessions {
   static async create(
     userId: string,
     ip: string,
     userAgent: string,
-    deviceInfo: string
+    deviceInfo: string,
   ) {
     return prisma.session.create({
       data: {
@@ -37,6 +37,16 @@ export class Sessions {
       data: {
         lastUsedAt: new Date(),
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
+    });
+  }
+
+  static async deactivate(sessionId: string, tx: PrismaClient = prisma) {
+    return prisma.session.update({
+      where: { id: sessionId },
+      data: {
+        isActive: false,
+        lastUsedAt: new Date(),
       },
     });
   }

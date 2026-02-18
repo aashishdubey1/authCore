@@ -21,6 +21,8 @@
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
 
+    "typeRoots": ["./src/types", "./node_modules/@types"],
+
     // Some stricter flags (disabled by default)
     "noUnusedLocals": false,
     "noUnusedParameters": false,

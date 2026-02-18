@@ -2,6 +2,7 @@ import express, { type Express, type Request, type Response } from "express";
 import helmet from "helmet";
 import serverConfig from "./config/server.config";
 import apiRoutes from "./routes";
+
 const app: Express = express();
 
 app.use(helmet());
@@ -11,8 +12,8 @@ app.set("trust proxy", 1);
 
 app.use("/api", apiRoutes);
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("Hello");
+app.get("/health", (req: Request, res: Response) => {
+  res.status(200).send("OK");
 });
 
 app.listen(serverConfig.PORT, () => {

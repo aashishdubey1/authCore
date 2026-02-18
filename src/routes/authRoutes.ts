@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   login,
+  logout,
   register,
   resendVerificationCode,
   verifyEmail,
@@ -12,6 +13,7 @@ import {
   userRegistrationSchema,
   verifyEmailSchema,
 } from "../validation/auth.schema";
+import { authenticate } from "../middlewares/authenticate";
 
 const router = Router();
 
@@ -22,12 +24,12 @@ router.get("/verify-email", validateQuery(verifyEmailSchema), verifyEmail);
 router.post(
   "/resend-verification",
   validate(resendVerificationCodeSchema),
-  resendVerificationCode
+  resendVerificationCode,
 );
 
 router.post("/login", validate(userLoginSchema), login);
 
-// router.post("/logout", () => {});
+router.post("/logout", authenticate, logout);
 
 // router.post("/logout-all", () => {});
 

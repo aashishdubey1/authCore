@@ -1,3 +1,4 @@
+import type { PrismaClient } from "@prisma/client/extension";
 import prisma from "../config/db.config";
 
 export class RefreashToken {
@@ -9,6 +10,13 @@ export class RefreashToken {
         revoked: false,
         expiresAt: new Date(Date.now() + 7 * 24 * 1000 * 60 * 60),
       },
+    });
+  }
+
+  static async revoke(sessionId: string, tx: PrismaClient = prisma) {
+    return tx.refreshToken.updateMany({
+      where: { sessionId, revoked: false },
+      data: { revoked: true, updatedAt: new Date() },
     });
   }
 }
