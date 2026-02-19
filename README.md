@@ -1,15 +1,22 @@
-# authcore
+# authCore Monorepo
 
-To install dependencies:
+This repository is organized as:
+- `apps/api`: Bun + Express + Prisma auth backend
+- `apps/web`: Next.js frontend with fun auth quest UX
 
+## Quick Start
+1. Install dependencies at root:
 ```bash
-bun install
+npm install
+```
+2. Start API:
+```bash
+npm run dev:api
+```
+3. Start web app:
+```bash
+npm run dev:web
 ```
 
-To run:
-
-```bash
-bun run index.ts
-```
-
-This project was created using `bun init` in bun v1.2.20. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+## Docs
+- Migration + implementation guide: `MIGRATION_NOTES.md`

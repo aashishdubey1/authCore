@@ -2,6 +2,8 @@ import { Router } from "express";
 import {
   login,
   logout,
+  logoutAll,
+  refresh,
   register,
   resendVerificationCode,
   verifyEmail,
@@ -31,9 +33,9 @@ router.post("/login", validate(userLoginSchema), login);
 
 router.post("/logout", authenticate, logout);
 
-// router.post("/logout-all", () => {});
+router.post("/logout-all", authenticate, logoutAll);
 
-// router.post("/refresh", () => {});
+router.post("/refresh", refresh);
 
 // router.post("/forgot-password", () => {});
 

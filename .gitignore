@@ -1,38 +1,7 @@
-# dependencies (bun install)
-node_modules
-src/generated/
-
-
-# output
-out
-dist
-*.tgz
-
-# code coverage
-coverage
-*.lcov
-
-# logs
-logs
-_.log
-report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
-
-# dotenv environment variable files
+﻿node_modules
 .env
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
+apps/api/node_modules
+apps/web/node_modules
+apps/web/.next
 
-# caches
-.eslintcache
-.cache
-*.tsbuildinfo
-
-# IntelliJ based IDEs
-.idea
-
-# Finder (MacOS) folder config
-.DS_Store
-
-/src/generated/prisma
+MIGRATION_NOTES.md

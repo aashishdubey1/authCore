@@ -19,4 +19,13 @@ export class RefreashToken {
       data: { revoked: true, updatedAt: new Date() },
     });
   }
+
+  static async revokeAll(userId: string, tx: PrismaClient = prisma) {
+    return tx.refreshToken.updateMany({
+      where: {
+        session: { userId },
+      },
+      data: { revoked: true, updatedAt: new Date() },
+    });
+  }
 }

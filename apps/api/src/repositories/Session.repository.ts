@@ -50,4 +50,11 @@ export class Sessions {
       },
     });
   }
+
+  static async deactivateAll(userId: string, tx: PrismaClient = prisma) {
+    return tx.session.updateMany({
+      where: { userId },
+      data: { isActive: false, lastUsedAt: new Date() },
+    });
+  }
 }

@@ -1,3 +1,9 @@
+const corsOptions = {
+  origin: "http://localhost:3001",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true,
+  optionsSuccessStatus: 200,
+};
 import type { Request, Response } from "express";
 import type {
   UserLoginInput,
@@ -208,6 +214,11 @@ export const login = async (req: Request, res: Response) => {
     message: "Login Successfull",
     accessToken,
     sessionId: session.id,
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+    },
   });
 };
 
@@ -235,4 +246,34 @@ export const logout = async (req: Request, res: Response) => {
       message: "Logout failed",
     });
   }
+};
+
+export const logoutAll = async (req: Request, res: Response) => {
+  const userId = req.user?.userId;
+
+  if (!userId) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid session Id",
+    });
+  }
+  try {
+    await prisma.$transaction(async (tx) => {
+      await Sessions.deactivateAll(userId, tx);
+      await RefreashToken.revokeAll(userId, tx);
+    });
+
+    res.clearCookie("refreshToken");
+    res.status(200).json({ success: true, message: "Logout Successfully" });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Logout failed",
+    });
+  }
+};
+
+export const refresh = async (req: Request, res: Response) => {
+  const refreshToken = req.cookies;
+  res.send("Ok");
 };

@@ -14,6 +14,7 @@ export const authenticate = (
     token = req.headers.authorization.split(" ")[1];
   } else {
     res.status(400).json({ success: false, message: "No token found" });
+    return;
   }
 
   try {

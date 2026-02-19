@@ -1,0 +1,121 @@
+﻿:root {
+  --bg: #f7f4ec;
+  --card: #fffdf8;
+  --text: #1c1d1a;
+  --line: #d7ceb9;
+  --primary: #0f766e;
+  --secondary: #d97706;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: var(--text);
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at 10% 15%, #ffecd1 0%, transparent 32%),
+    radial-gradient(circle at 90% 8%, #d7f2ec 0%, transparent 35%),
+    var(--bg);
+}
+
+.page {
+  width: min(1100px, 94vw);
+  margin: 24px auto;
+  display: grid;
+  gap: 12px;
+}
+
+.card {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--card);
+  padding: 14px;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+.hero {
+  display: grid;
+  gap: 6px;
+}
+
+.status {
+  display: grid;
+  gap: 8px;
+}
+
+.system {
+  border-top: 1px dashed var(--line);
+  padding-top: 8px;
+}
+
+ul {
+  margin: 8px 0 0;
+}
+
+.todo {
+  color: #555;
+}
+
+.done {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+form {
+  display: grid;
+  gap: 8px;
+}
+
+input,
+button {
+  border-radius: 10px;
+  font: inherit;
+  padding: 10px 12px;
+}
+
+input {
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+button {
+  border: none;
+  color: #fff;
+  background: linear-gradient(135deg, var(--primary), #0ea5a0);
+  cursor: pointer;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.actions button:last-child {
+  background: linear-gradient(135deg, var(--secondary), #f59e0b);
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+@media (max-width: 860px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
