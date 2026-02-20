@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  forgotPassword,
   login,
   logout,
   logoutAll,
@@ -10,6 +11,7 @@ import {
 } from "../controller/auth.controller";
 import { validate, validateQuery } from "../middlewares/inputValidate";
 import {
+  forgotPasswordSchema,
   resendVerificationCodeSchema,
   userLoginSchema,
   userRegistrationSchema,
@@ -37,7 +39,7 @@ router.post("/logout-all", authenticate, logoutAll);
 
 router.post("/refresh", refresh);
 
-// router.post("/forgot-password", () => {});
+router.post("/forgot-password", validate(forgotPasswordSchema), forgotPassword);
 
 // router.post("/change-password", () => {});
 

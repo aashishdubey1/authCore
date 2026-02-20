@@ -11,7 +11,7 @@ export const userRegistrationSchema = z.object({
     .regex(/[0-9]/, "Password must contain at least one Number")
     .regex(
       /[^A-Za-z0-9]/,
-      "Password must contain at least one special character"
+      "Password must contain at least one special character",
     ),
 });
 
@@ -31,6 +31,10 @@ export const resendVerificationCodeSchema = z.object({
 
 export const verifyEmailSchema = z.object({
   token: z.string("Token is missing").min(12, "Token is invalid"),
+});
+
+export const forgotPasswordSchema = z.object({
+  string: z.email("Email is required"),
 });
 
 export type UserRegisterInput = z.infer<typeof userRegistrationSchema>;

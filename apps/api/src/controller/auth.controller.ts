@@ -13,7 +13,7 @@ import { UserRepository } from "../repositories/User.repository";
 import serverConfig from "../config/server.config";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
-import { VerificationCode } from "../repositories/VerificatonToken.repository";
+import { AuthTokenRepository } from "../repositories/AuthToken.repository";
 import { emailService } from "../utils/emailService";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
 import { PrismaClientValidationError } from "../generated/prisma/internal/prismaNamespace";
@@ -22,6 +22,7 @@ import { getClientInfo } from "../utils/clientInfo";
 import { generateAccessToken, generateRefreshToken } from "../utils/jwt";
 import { RefreashToken } from "../repositories/RefreshToken.repository";
 import prisma from "../config/db.config";
+import { TokenType } from "../generated/prisma/enums";
 
 export const register = async (req: Request, res: Response) => {
   const { name, email, password } = req.body as UserRegisterInput;
@@ -274,6 +275,37 @@ export const logoutAll = async (req: Request, res: Response) => {
 };
 
 export const refresh = async (req: Request, res: Response) => {
-  const refreshToken = req.cookies;
-  res.send("Ok");
+  res.status(200).send("NOT IMPLEMENTED YET");
+};
+
+export const forgotPassword = async (req: Request, res: Response) => {
+  const { email } = req.body;
+
+  const user = await UserRepository.findByEmail(email);
+
+  if (!user) {
+    return res
+      .status(200)
+      .json({ success: true, message: "If account exists, reset link sent" });
+  }
+
+  const token = crypto.randomBytes(30).toString("hex");
+  const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+  const expiresAt = new Date(Date.now() + 1000 * 60 * 15);
+
+  await AuthTokenRepository.create(
+    tokenHash,
+    user.id,
+    expiresAt,
+    TokenType.PASSWORD_RESET,
+  );
+
+  if (serverConfig.BUN_ENV === "production") {
+    // await emailService.sendVerificationEmail(user.email, token);
+  } else {
+    console.log(`http://localhost:3000/reset-token/${token}`);
+  }
+  return res
+    .status(200)
+    .json({ success: true, message: "If account exists, reset link sent" });
 };
